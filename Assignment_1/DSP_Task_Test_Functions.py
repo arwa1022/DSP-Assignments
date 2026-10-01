@@ -9,7 +9,6 @@ def ReadSignalFile(file_name):
         line = f.readline()
         line = f.readline()
         while line:
-            # process line
             L=line.strip()
             if len(L.split(' '))==2:
                 L=line.split(' ')
@@ -91,10 +90,10 @@ def MultiplySignalByConst(User_Const,Your_indices,Your_samples):
 
 
 def ShiftSignalByConst(Shift_value,Your_indices,Your_samples):
-    if(Shift_value==3):  #x(n+k)
-        file_name="results/advance3.txt" # write here the path of delay3 output file
-    elif(Shift_value==-3): #x(n-k)
-        file_name="results/delay3.txt" # write here the path of advance3 output file
+    if(Shift_value==3):
+        file_name="results/advance3.txt"
+    elif(Shift_value==-3):
+        file_name="results/delay3.txt"
         
     expected_indices,expected_samples=ReadSignalFile(file_name)      
     if (len(expected_samples)!=len(Your_samples)) and (len(expected_indices)!=len(Your_indices)):
@@ -116,7 +115,7 @@ def ShiftSignalByConst(Shift_value,Your_indices,Your_samples):
 
 
 def Folding(Your_indices,Your_samples):
-    file_name = "results/folding.txt"  # write here the path of the folding output file
+    file_name = "results/folding.txt"
     expected_indices,expected_samples=ReadSignalFile(file_name)      
     if (len(expected_samples)!=len(Your_samples)) and (len(expected_indices)!=len(Your_indices)):
         print("Folding Test case failed, your signal have different length from the expected one")

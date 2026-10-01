@@ -7,7 +7,6 @@ def ReadSignalFile(file_name):
         line = f.readline() # reads N
         line = f.readline() # read the index and value
         while line:
-            # process line
             L=line.strip()
             if len(L.split(' '))==2:
                 L=line.split(' ')
@@ -29,21 +28,20 @@ def addSignals(indices1, samples1, indices2, samples2):
     min_index = min(min(indices1), min(indices2))
     max_index = max(max(indices1), max(indices2))
     
-    # loop from minimum index to maximum index of the new signal
     for i in range(min_index, max_index + 1):
-        result_indices.append(i) # save the current index
+        result_indices.append(i)
         
         # get value from the first signal (0 if not found)
         value1 = 0
         if i in indices1:
-            position1 = indices1.index(i) # get the location of the index
-            value1 = samples1[position1]    # get the sample value
+            position1 = indices1.index(i)
+            value1 = samples1[position1]
             
         # get value from the second signal (0 if not found)
         value2 = 0
         if i in indices2:
-            position2 = indices2.index(i) # get the location of the index
-            value2 = samples2[position2]    # get the sample value
+            position2 = indices2.index(i)
+            value2 = samples2[position2]
             
         # add the two values and save the result
         result_samples.append(value1 + value2)
@@ -65,9 +63,8 @@ def multiplySignalByConst(indices, samples, constant):
     result_indices = []
     result_samples = []
 
-    # loop from minimum index to maximum index of the new signal
     for i in range(len(indices)):
-        result_indices.append(indices[i]) # save the current index
+        result_indices.append(indices[i])
 
         value = samples[i]
         result_samples.append(value * constant)
