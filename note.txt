@@ -1,7 +1,0 @@
-to run the app.py on my machine
-
-conda prompt
-
-cd /d D:\Python_Conda_Jupyter\ML_NLP_Projects\DSP
-
-python -m streamlit run app.py
