@@ -21,15 +21,23 @@ def plot_signal(indices, samples, title):
         x=indices, y=samples,
         mode='markers+lines',
         name=title,
-        marker=dict(size=15, color='#1f77b4'),
-        line=dict(color='rgba(31, 119, 180, 0.5)', width=3.5)
+        marker=dict(size=15, color="#50aff3"),
+        # line=dict(color='rgba(31, 119, 180, 0.5)', width=3.5)
+        line=dict(color='rgba(31, 119, 180, 0.5)',width=3.5,shape='spline')
     ))
     fig.update_layout(
         title=f"<b>{title}</b>",
         xaxis_title="Time Index [n]",
         yaxis_title="Amplitude",
+        # plot_bgcolor='white',
+        # paper_bgcolor='white',
         template="plotly_white",
-        margin=dict(l=40, r=40, t=60, b=40)
+        xaxis=dict(tick0=0,dtick=0.5),
+        # xaxis=dict(tick0=0,dtick=0.5,tickfont=dict(color='black'),title_font=dict(color='black')),
+        yaxis=dict(tick0=0,dtick=1.0),
+        # yaxis=dict(tick0=0,dtick=1.0,tickfont=dict(color='black'),title_font=dict(color='black')),
+        height=1000,
+        margin=dict(l=40, r=40, t=40, b=40)
     )
     st.plotly_chart(fig, use_container_width=True)
 
