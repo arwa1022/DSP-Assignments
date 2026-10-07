@@ -1,4 +1,5 @@
 from Assignment_1.DSP_Assignment_1 import addSignals, advance, delay, folding, multiplySignalByConst, subtractSignals
+from Assignment_2.DSP_Assignment_2 import checkAliasing, analogSignal, discreteSignal
 import streamlit as st
 import plotly.graph_objects as go
 
@@ -17,29 +18,49 @@ def parse_streamlit_file(uploaded_file):
 
 def plot_signal(indices, samples, title):
     fig = go.Figure()
+
+    for x, y in zip(indices, samples):
+        fig.add_shape(type="line", x0=x, y0=0, x1=x, y1=y, line=dict(color='rgba(31, 119, 180, 0.7)', width=2))
+
+    fig.add_trace(go.Scatter(x=indices, y=samples, mode='markers', name=title,
+        marker=dict(size=6, color="#50aff3", line=dict(color='rgba(31, 119, 180, 1)', width=1))
+    ))
+    
+    is_small_data = len(indices) <= 30
+    
+    if is_small_data:
+        for x in indices:
+            fig.add_annotation(x=x, y=0, text=str(x), showarrow=False, yshift=-20, font=dict(color="black", size=14))
+            
+    fig.update_layout(
+        title=dict(text=f"<b>{title}</b>", font=dict(color="black", size=20)), 
+        plot_bgcolor='white', paper_bgcolor='white',  
+        xaxis=dict( title=dict(text="Time Index [n]", font=dict(color="black", size=18)), 
+            showticklabels=not is_small_data, showline=not is_small_data, zeroline=False, gridcolor='lightgray'), 
+        yaxis=dict( title=dict(text="Amplitude", font=dict(color="black", size=18)), tickfont=dict(color="black", size=16), 
+            showline=True, linewidth=2, linecolor='black', zeroline=True, zerolinewidth=2, zerolinecolor='black', gridcolor='lightgray'),
+        height=400,
+        margin=dict(l=40, r=40, t=60, b=40)
+    )
+    
+    st.plotly_chart(fig, use_container_width=True)
+
+
+def plot_analog_signal(t, samples, title):
+    fig = go.Figure()
     fig.add_trace(go.Scatter(
-        x=indices, y=samples,
-        mode='markers+lines',
-        name=title,
-        marker=dict(size=15, color="#50aff3"),
-        # line=dict(color='rgba(31, 119, 180, 0.5)', width=3.5)
-        line=dict(color='rgba(31, 119, 180, 0.5)',width=3.5,shape='spline')
+        x=t, y=samples, mode='lines', name=title, 
+        line=dict(color="#5cebf0", width=3)
     ))
     fig.update_layout(
-        title=f"<b>{title}</b>",
-        xaxis_title="Time Index [n]",
-        yaxis_title="Amplitude",
-        # plot_bgcolor='white',
-        # paper_bgcolor='white',
-        template="plotly_white",
-        xaxis=dict(tick0=0,dtick=0.5),
-        # xaxis=dict(tick0=0,dtick=0.5,tickfont=dict(color='black'),title_font=dict(color='black')),
-        yaxis=dict(tick0=0,dtick=1.0),
-        # yaxis=dict(tick0=0,dtick=1.0,tickfont=dict(color='black'),title_font=dict(color='black')),
-        height=1000,
-        margin=dict(l=40, r=40, t=40, b=40)
+        title=dict(text=f"<b>{title}</b>", font=dict(color="black", size=20)),
+        plot_bgcolor='white', paper_bgcolor='white',
+        xaxis=dict(title=dict(text="Time (t)", font=dict(color="black", size=18)), tickfont=dict(color="black", size=18), showline=True, linewidth=2, linecolor='black', gridcolor='lightgray'),
+        yaxis=dict(title=dict(text="Amplitude", font=dict(color="black", size=18)), tickfont=dict(color="black", size=18), showline=True, linewidth=2, linecolor='black', zeroline=True, zerolinewidth=2, zerolinecolor='black', gridcolor='lightgray'),
+        height=400, margin=dict(l=40, r=40, t=60, b=40)
     )
     st.plotly_chart(fig, use_container_width=True)
+
 
 def generate_output_file(indices, samples):
     content = "0\n0\n"
@@ -66,7 +87,7 @@ selected_task = st.sidebar.radio(
     "Choose Task:",
     [
         "📊 Task 1: Signal Processing", 
-        "Task 2: ", 
+        "🚀 Task 2: Signal Generation", 
         "Task 3: ",
         "Task 4: "
     ],
@@ -88,7 +109,7 @@ if "Task 1" in selected_task:
 
             file1 = st.file_uploader("Format: index, value (.txt)", type=['txt'], key="file1")
             if file1 is not None:
-                st.success(f"✔️ {file1.name} - Uploaded & Parsed")
+                st.success(f"✅ {file1.name} - Uploaded & Parsed")
                 
     with col2:
         with st.container(border=True):
@@ -96,7 +117,7 @@ if "Task 1" in selected_task:
 
             file2 = st.file_uploader("Format: index, value (.txt)", type=['txt'], key="file2")
             if file2 is not None:
-                st.success(f"✔️ {file2.name} - Uploaded & Parsed")
+                st.success(f"✅ {file2.name} - Uploaded & Parsed")
                 
     st.divider()
     st.markdown("## 💡 Operations")
@@ -176,7 +197,7 @@ if "Task 1" in selected_task:
 
             if len(res_ind) > 0:
                 with st.container(border=True):
-                    st.success("✔️ Computation Executed Successfully")
+                    st.success("✅ Computation Executed Successfully")
                     plot_signal(res_ind, res_samp, op_title)
                     
                     st.divider()
@@ -193,6 +214,58 @@ if "Task 1" in selected_task:
                             mime="text/plain",
                             use_container_width=True
                         )
+
+elif "Task 2" in selected_task:
+    st.title("🚀 Task 2: Signal Generation")
+    st.caption("Generate continuous and discrete sinusoidal signals based on Nyquist Theorem.")
+    st.divider()
+
+    st.markdown("## 🌊 Pick Wave Type")
+    wave_type = st.radio("Wave Type", ["sin", "cos"], horizontal=True, label_visibility="collapsed")
+    
+    st.write("")
+
+    st.markdown("## 📶 Signal Parameters")
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        A = st.number_input("Amplitude (A)", value=None, step=0.5, placeholder="ex: 5.0")
+    with col2:
+        normal_F = st.number_input("Analog Frequency (F)", value=None, step=1.0, placeholder="ex: 10")
+    with col3:
+        sampling_F = st.number_input("Sampling Freq (Fs)", value=None, step=1.0, placeholder="ex: 50")
+    with col4:
+        phase_shift = st.number_input("Phase Shift (θ)", value=None, step=0.1, placeholder="ex: 0.0")
+
+    st.divider()
+
+    if st.button("Generate Signals", type="primary", use_container_width=True):
+        
+        if A is None or normal_F is None or sampling_F is None or phase_shift is None:
+            st.warning("⚠️ Please fill in all the signal parameters before generating!")
+        else:
+            plot_col, info_col = st.columns([8, 2])
+            
+            with info_col:
+                is_alias = checkAliasing(normal_F, sampling_F)
+                if is_alias:
+                    st.error("🚨 Aliasing Status: **TRUE**\n\n(Fs < 2F)") 
+                else:
+                    st.success("✅ Aliasing Status: **FALSE**\n\n(Fs >= 2F)")
+
+            with plot_col:
+                sign = "+" if phase_shift >= 0 else "-"
+                t_vals, analog_y = analogSignal(wave_type, A, normal_F, phase_shift)
+                
+                st.latex(f"x(t) = {A} \\ {wave_type}(2\\pi ({normal_F}) t \\ {sign} \\ {abs(phase_shift)})")
+                plot_analog_signal(t_vals, analog_y, "Analog Signal")
+                
+                st.markdown("<br><br>", unsafe_allow_html=True)
+                
+                n_vals, discrete_y = discreteSignal(wave_type, A, sampling_F, normal_F, phase_shift)
+                normalized_freq = normal_F / sampling_F
+                
+                st.latex(f"x[n] = {A} \\ {wave_type}(2\\pi ({normalized_freq:.2f}) n \\ {sign} \\ {abs(phase_shift)})")
+                plot_signal(n_vals, discrete_y, "Discrete Signal")
 else:
     st.title(selected_task)
     st.info("This task is currently under development.")
