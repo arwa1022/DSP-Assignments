@@ -248,9 +248,9 @@ elif "Task 2" in selected_task:
             with info_col:
                 is_alias = checkAliasing(normal_F, sampling_F)
                 if is_alias:
-                    st.error("🚨 Aliasing Status: **TRUE**\n\n(Fs < 2F)") 
+                    st.error("🚨 Aliasing\n\n(Fs < 2F)") 
                 else:
-                    st.success("✅ Aliasing Status: **FALSE**\n\n(Fs >= 2F)")
+                    st.success("✅ NO Aliasing\n\n(Fs >= 2F)")
 
             with plot_col:
                 sign = "+" if phase_shift >= 0 else "-"
