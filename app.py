@@ -87,8 +87,8 @@ selected_task = st.sidebar.radio(
     "Choose Task:",
     [
         "📊 Task 1: Signal Processing", 
-        "🚀 Task 2: Signal Generation", 
-        "Task 3: ",
+        "🚀 Task 2: Signal Sampling", 
+        "⚛️ Task 3: Signal Quantization",
         "Task 4: "
     ],
     label_visibility="collapsed"
@@ -216,7 +216,7 @@ if "Task 1" in selected_task:
                         )
 
 elif "Task 2" in selected_task:
-    st.title("🚀 Task 2: Signal Generation")
+    st.title("🚀 Task 2: Signal Sampling")
     st.caption("Generate continuous and discrete sinusoidal signals based on Nyquist Theorem.")
     st.divider()
 
@@ -266,6 +266,12 @@ elif "Task 2" in selected_task:
                 
                 st.latex(f"x[n] = {A} \\ {wave_type}(2\\pi ({normalized_freq:.2f}) n \\ {sign} \\ {abs(phase_shift)})")
                 plot_signal(n_vals, discrete_y, "Discrete Signal")
+
+elif "Task 3" in selected_task:
+    st.title("⚛️ Task 3: Signal Quantization")
+    # st.caption("Generate continuous and discrete sinusoidal signals based on Nyquist Theorem.")
+    st.divider()
+
 else:
     st.title(selected_task)
     st.info("This task is currently under development.")
