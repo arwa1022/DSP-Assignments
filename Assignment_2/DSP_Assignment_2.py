@@ -4,7 +4,7 @@ def checkAliasing(normal_F, sampling_F):
     return sampling_F < (2 * normal_F)
 
 def analogSignal(wave, A, normal_F, phase_shift):
-    # High-density points to display a smooth continuous curve over 1 second
+    # high-density points to display a smooth continuous curve over 1 second
     t = np.linspace(0, 1, 1000)
     
     if wave == "sin":
@@ -12,19 +12,20 @@ def analogSignal(wave, A, normal_F, phase_shift):
     else:
         analog_signal = A * np.cos(2 * np.pi * normal_F * t + phase_shift)
         
-    return t.tolist(), analog_signal.tolist()
+    return t, analog_signal
 
 def discreteSignal(wave, A, sampling_F, normal_F, phase_shift):
-    # Integer sample indices over 1 second: 0, 1, ..., int(sampling_F) - 1
+    # integer sample indices over 1 second: 0, 1, ..., int(sampling_F) - 1
     total_samples = int(sampling_F)
-    n = list(range(total_samples))
+    n = np.arange(total_samples)
     
-    # x[n] = A * wave(2 * pi * (F / Fs) * n + theta)
-    omega_d = 2 * np.pi * (normal_F / sampling_F)
-    
+    # ω = 2 * π * (normal_F / sampling_F)
+    ω = 2 * np.pi * (normal_F / sampling_F)
+
+    # x[n] = A * wave(ω * n + theta)
     if wave == "sin":
-        discrete_signal = [float(A * np.sin(omega_d * i + phase_shift)) for i in n]
+        discrete_signal = A * np.sin(ω * n + phase_shift)
     else:
-        discrete_signal = [float(A * np.cos(omega_d * i + phase_shift)) for i in n]
+        discrete_signal = A * np.cos(ω * n + phase_shift)
         
     return n, discrete_signal
