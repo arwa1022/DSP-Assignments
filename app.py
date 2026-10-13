@@ -271,7 +271,9 @@ elif "Task 3" in selected_task:
     st.title("⚛️ Task 3: Signal Quantization")
     # st.caption("Generate continuous and discrete sinusoidal signals based on Nyquist Theorem.")
     st.divider()
+    st.info("This task is currently under development.")
 
 else:
     st.title(selected_task)
+    st.divider()
     st.info("This task is currently under development.")
