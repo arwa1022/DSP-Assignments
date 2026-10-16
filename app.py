@@ -109,9 +109,7 @@ selected_task = st.sidebar.radio(
     label_visibility="collapsed"
 )
 
-# ==============================================================================
-# TASK 1: SIGNAL PROCESSING
-# ==============================================================================
+
 if "Task 1" in selected_task:
     st.title("Task 1: Signal Processing")
     st.caption("Perform fundamental discrete-time signal transformations on uploaded experimental time-series.")
@@ -220,9 +218,7 @@ if "Task 1" in selected_task:
                             use_container_width=True
                         )
 
-# ==============================================================================
-# TASK 2: SIGNAL SAMPLING
-# ==============================================================================
+
 elif "Task 2" in selected_task:
     st.title("🚀 Task 2: Signal Sampling")
     st.caption("Generate continuous and discrete sinusoidal signals based on Nyquist Theorem.")
@@ -274,9 +270,7 @@ elif "Task 2" in selected_task:
                 st.latex(f"x[n] = {A} \\ {wave_type}(2\\pi ({normalized_freq:.2f}) n \\ {sign} \\ {abs(phase_shift)})")
                 plot_signal(n_vals, discrete_y, "Discrete Signal")
 
-# ==============================================================================
-# TASK 3: SIGNAL QUANTIZATION
-# ==============================================================================
+
 elif "Task 3" in selected_task:
     st.title("⚛️ Task 3: Signal Quantization")
     st.caption("Scalar uniform quantization, discrete dynamic range partitioning, and PCM encoding.")
@@ -304,18 +298,18 @@ elif "Task 3" in selected_task:
             if choice_type == "Bits":
                 user_val = st.number_input("Number of Bits (b):", min_value=1, max_value=16, value=3, step=1)
                 equiv_levels = 2 ** int(user_val)
-                st.caption(f"ℹ️ Computed Resolution: **{equiv_levels} Levels**")
+                st.caption(f"Computed Resolution: **{equiv_levels} Levels**")
             else:
                 user_val = st.number_input("Number of Quantization Levels (L):", min_value=2, max_value=256, value=4, step=1)
                 import math
                 equiv_bits = math.ceil(math.log2(int(user_val)))
-                st.caption(f"ℹ️ Encoded Word Length: **{equiv_bits} Bits/Level**")
+                st.caption(f"Encoded Word Length: **{equiv_bits} Bits/Level**")
 
     st.divider()
 
     exec_col1, exec_col2 = st.columns([8, 2])
     with exec_col1:
-        st.markdown(f"#### **Configuration:** Mode `{choice_type.lower()}` | Value `{int(user_val)}`")
+        st.markdown(f"#### **Configuration:** {choice_type.lower()} Mode, Value = {int(user_val)}")
     with exec_col2:
         quantize_btn = st.button("Run Quantization", type="primary", use_container_width=True)
 
@@ -340,7 +334,7 @@ elif "Task 3" in selected_task:
 
                 delta = ranges[0][1] - ranges[0][0]
 
-                # Metric Cards
+                # metric Cards
                 m1, m2, m3, m4 = st.columns(4)
                 with m1:
                     st.metric("Total Samples (N)", len(samples))
@@ -349,15 +343,15 @@ elif "Task 3" in selected_task:
                 with m3:
                     st.metric("Levels (L)", len(ranges))
                 with m4:
-                    st.metric("Mean Squared Error", f"{avg_error:.5f}")
+                    st.metric("Average Error", f"{avg_error:.5f}")
 
                 st.divider()
 
-                # Mathematical Formalism
+                # mathematical Formalism
                 st.markdown("### 📐 Mathematical Representation")
                 st.latex(r"\Delta = \frac{x_{\max} - x_{\min}}{L}, \quad e_q[n] = x_q[n] - x[n]")
 
-                # Visualization: Original vs Quantized and Error
+                # visualization: Original vs Quantized and Error
                 tab_plots, tab_data = st.tabs(["📊 Waveform & Error Visualizer", "📋 Sample-Level Inspect Table"])
 
                 with tab_plots:
@@ -373,17 +367,17 @@ elif "Task 3" in selected_task:
                     st.markdown("#### **Quantization Encodings & Reconstructions**")
                     df = pd.DataFrame({
                         "Time Index [n]": indices,
-                        "Input x[n]": samples,
                         "Interval Index": interval_indices,
-                        "Encoded Bits": encoded_values,
+                        "Input x[n]": samples,
                         "Quantized x_q[n]": [round(v, 4) for v in quantized_samples],
-                        "Error e_q[n]": [round(e, 4) for e in error_samples]
+                        "Error e_q[n]": [round(e, 4) for e in error_samples],
+                        "Encoded Bits": encoded_values
                     })
                     st.dataframe(df, use_container_width=True, height=350)
 
                 st.divider()
 
-                # Download Handler
+                # download handler
                 out_content = generate_quantization_output_file(encoded_values, quantized_samples)
                 dl_col1, dl_col2 = st.columns([7, 3])
                 with dl_col2:
