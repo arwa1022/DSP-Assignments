@@ -334,7 +334,7 @@ elif "Task 3" in selected_task:
 
                 delta = ranges[0][1] - ranges[0][0]
 
-                # metric Cards
+                # Metric Cards
                 m1, m2, m3, m4 = st.columns(4)
                 with m1:
                     st.metric("Total Samples (N)", len(samples))
@@ -347,21 +347,12 @@ elif "Task 3" in selected_task:
 
                 st.divider()
 
-                # mathematical Formalism
+                # Mathematical Formalism
                 st.markdown("### 📐 Mathematical Representation")
                 st.latex(r"\Delta = \frac{x_{\max} - x_{\min}}{L}, \quad e_q[n] = x_q[n] - x[n]")
 
-                # visualization: Original vs Quantized and Error
-                tab_plots, tab_data = st.tabs(["📊 Waveform & Error Visualizer", "📋 Sample-Level Inspect Table"])
-
-                with tab_plots:
-                    st.markdown("#### **Discrete Stem Comparison**")
-                    plot_signal(indices, quantized_samples, "Quantized Signal: x_q[n]", 
-                                stem_color="rgba(44, 160, 44, 0.7)", marker_color="#2ca02c")
-                    
-                    st.markdown("#### **Quantization Error Signal**")
-                    plot_signal(indices, error_samples, "Quantization Error: e_q[n] = x_q[n] - x[n]",
-                                stem_color="rgba(214, 39, 40, 0.7)", marker_color="#d62728")
+                # Swapped Tabs: Table is first, Plots are second
+                tab_data, tab_plots = st.tabs(["📋 Sample-Level Inspect Table", "📊 Waveform & Error Visualizer"])
 
                 with tab_data:
                     st.markdown("#### **Quantization Encodings & Reconstructions**")
@@ -375,9 +366,18 @@ elif "Task 3" in selected_task:
                     })
                     st.dataframe(df, use_container_width=True, height=350)
 
+                with tab_plots:
+                    st.markdown("#### **Discrete Stem Comparison**")
+                    plot_signal(indices, quantized_samples, "Quantized Signal: x_q[n]", 
+                                stem_color="rgba(44, 160, 44, 0.7)", marker_color="#2ca02c")
+                    
+                    st.markdown("#### **Quantization Error Signal**")
+                    plot_signal(indices, error_samples, "Quantization Error: e_q[n] = x_q[n] - x[n]",
+                                stem_color="rgba(214, 39, 40, 0.7)", marker_color="#d62728")
+
                 st.divider()
 
-                # download handler
+                # Download Handler
                 out_content = generate_quantization_output_file(encoded_values, quantized_samples)
                 dl_col1, dl_col2 = st.columns([7, 3])
                 with dl_col2:
