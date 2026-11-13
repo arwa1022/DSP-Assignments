@@ -19,33 +19,6 @@ def ReadSignalFile(file_name):
                 break
     return expected_indices,expected_samples
 
-def delay(indices, samples, constant): # shift right -> x(n-k)
-    result_indices = []
-    result_samples = []
-
-    for i in range(len(indices)):
-        value = samples[i]
-        result_samples.append(value)
-
-        new_index = indices[i] + constant
-        result_indices.append(new_index)
-
-    return result_indices, result_samples
-
-
-def advance(indices, samples, constant): # shift left -> x(n+k)
-    result_indices = []
-    result_samples = []
-
-    for i in range(len(indices)):
-        value = samples[i]
-        result_samples.append(value)
-
-        new_index = indices[i] + (-1 * constant)
-        result_indices.append(new_index)
-
-    return result_indices, result_samples
-
 
 def moving_average(samples, window):
     result = []
