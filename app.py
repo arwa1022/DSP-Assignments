@@ -1,9 +1,23 @@
 from Assignment_1.DSP_Assignment_1 import addSignals, advance, delay, folding, multiplySignalByConst, subtractSignals
 from Assignment_2.DSP_Assignment_2 import checkAliasing, analogSignal, discreteSignal
 from Assignment_3.DSP_Assignment_3 import quantize_signal
+import os
+import sys
 import streamlit as st
 import plotly.graph_objects as go
 import pandas as pd
+
+try:
+    from Assignment_4.DSP_Assignment_4 import moving_average, first_derivative, second_derivative, convolution
+except ImportError:
+    _base = os.path.dirname(os.path.abspath(__file__))
+    for _candidate in (
+        os.path.join(_base, "Assignment_4"),
+        os.path.join(_base, "DSP-Assignments-main", "Assignment_4"),
+    ):
+        if os.path.isdir(_candidate) and _candidate not in sys.path:
+            sys.path.append(_candidate)
+    from DSP_Assignment_4 import moving_average, first_derivative, second_derivative, convolution
 
 
 def parse_streamlit_file(uploaded_file):
@@ -104,7 +118,7 @@ selected_task = st.sidebar.radio(
         "📊 Task 1: Signal Processing", 
         "🚀 Task 2: Signal Sampling", 
         "⚛️ Task 3: Signal Quantization",
-        "Task 4: "
+        "🌊 Task 4: Time-Domain Operations"
     ],
     label_visibility="collapsed"
 )
@@ -390,6 +404,154 @@ elif "Task 3" in selected_task:
                     )
 
 else:
-    st.title(selected_task)
+    st.title("🌊 Task 4: Time-Domain Operations")
+    st.caption("Smoothing, sharpening and convolution of discrete-time signals.")
     st.divider()
-    st.info("This task is currently under development.")
+
+    st.markdown("## 💡 Operations")
+    t4_operation = st.radio(
+        "Select Operation:",
+        ["〰️ Moving Average", "📈 First Derivative", "📉 Second Derivative", "✖️ Convolution"],
+        horizontal=True,
+        label_visibility="collapsed",
+        key="t4_operation"
+    )
+
+    st.divider()
+    st.markdown("## 📤 Signal Ingestion")
+
+    t4_file1, t4_file2 = None, None
+    window_size = None
+
+    if t4_operation == "✖️ Convolution":
+        c1, c2 = st.columns(2)
+        with c1:
+            with st.container(border=True):
+                st.markdown("#### **Upload Signal 1 / h[n] (.txt)**")
+                t4_file1 = st.file_uploader("Format: index, value (.txt)", type=['txt'], key="t4_file1")
+                if t4_file1 is not None:
+                    st.success(f"✅ {t4_file1.name} - Uploaded & Parsed")
+        with c2:
+            with st.container(border=True):
+                st.markdown("#### **Upload Signal 2 / x[n] (.txt)**")
+                t4_file2 = st.file_uploader("Format: index, value (.txt)", type=['txt'], key="t4_file2")
+                if t4_file2 is not None:
+                    st.success(f"✅ {t4_file2.name} - Uploaded & Parsed")
+    else:
+        with st.container(border=True):
+            st.markdown("#### **Upload Signal (.txt)**")
+            t4_file1 = st.file_uploader("Format: index, value (.txt)", type=['txt'], key="t4_file1")
+            if t4_file1 is not None:
+                st.success(f"✅ {t4_file1.name} - Uploaded & Parsed")
+
+    if t4_operation == "〰️ Moving Average":
+        st.markdown("## ⚙️ Parameters")
+        with st.container(border=True):
+            st.markdown("#### 〰️ Moving Average Settings")
+            window_size = st.number_input("Window Size (M):", min_value=1, value=3, step=1)
+
+    st.divider()
+
+    exec_col1, exec_col2 = st.columns([8, 2])
+    with exec_col1:
+        st.markdown(f"#### **Target Operation:** `{t4_operation}`")
+    with exec_col2:
+        t4_btn = st.button("Display Result", type="primary", use_container_width=True, key="t4_btn")
+
+    if t4_btn:
+        if t4_file1 is None:
+            st.warning("⚠️ Please upload Signal 1 first!")
+        elif t4_operation == "✖️ Convolution" and t4_file2 is None:
+            st.warning("⚠️ Please upload Signal 2 for this operation!")
+        else:
+            ind1, samp1 = parse_streamlit_file(t4_file1)
+            ind2, samp2 = [], []
+            if t4_operation == "✖️ Convolution":
+                ind2, samp2 = parse_streamlit_file(t4_file2)
+
+            error_msg = None
+            if len(samp1) == 0 or (t4_operation == "✖️ Convolution" and len(samp2) == 0):
+                error_msg = "Uploaded signal contains no valid data."
+            elif t4_operation == "〰️ Moving Average" and int(window_size) > len(samp1):
+                error_msg = f"Window size ({int(window_size)}) exceeds signal length ({len(samp1)})."
+            elif t4_operation == "📈 First Derivative" and len(samp1) < 2:
+                error_msg = "First derivative requires a signal of at least 2 samples."
+            elif t4_operation == "📉 Second Derivative" and len(samp1) < 3:
+                error_msg = "Second derivative requires a signal of at least 3 samples."
+
+            if error_msg:
+                st.error(f"🚨 {error_msg}")
+            else:
+                if t4_operation == "〰️ Moving Average":
+                    res_samp = moving_average(samp1, int(window_size))
+                    res_ind = ind1[:len(res_samp)]
+                    formula = r"y[n] = \frac{1}{M} \sum_{k=0}^{M-1} x[n+k]"
+                    out_title = f"Moving Average Output (M = {int(window_size)})"
+                elif t4_operation == "📈 First Derivative":
+                    res_samp = first_derivative(samp1)
+                    res_ind = ind1[:len(res_samp)]
+                    formula = r"y[n] = x[n] - x[n-1]"
+                    out_title = "First Derivative Output: y[n]"
+                elif t4_operation == "📉 Second Derivative":
+                    res_samp = second_derivative(samp1)
+                    res_ind = ind1[:len(res_samp)]
+                    formula = r"y[n] = x[n+1] - 2x[n] + x[n-1]"
+                    out_title = "Second Derivative Output: y[n]"
+                else:
+                    res_ind, res_samp = convolution(ind1, samp1, ind2, samp2)
+                    formula = r"y[n] = h[n] * x[n] = \sum_{k=-\infty}^{\infty} h[k] x[n-k]"
+                    out_title = "Convolution Output: y[n] = h[n] * x[n]"
+
+                with st.container(border=True):
+                    st.success("✅ Computation Executed Successfully")
+
+                    m1, m2, m3, m4 = st.columns(4)
+                    with m1:
+                        if t4_operation == "✖️ Convolution":
+                            st.metric("Input Length", f"{len(samp1)} / {len(samp2)}")
+                        else:
+                            st.metric("Input Length", len(samp1))
+                    with m2:
+                        st.metric("Output Length", len(res_samp))
+                    with m3:
+                        st.metric("Start Index", res_ind[0] if res_ind else "-")
+                    with m4:
+                        st.metric("End Index", res_ind[-1] if res_ind else "-")
+
+                    st.divider()
+                    st.markdown("### 📐 Mathematical Representation")
+                    st.latex(formula)
+
+                    tab_plots, tab_data = st.tabs(["📊 Signal Plots", "📋 Sample-Level Data Table"])
+
+                    with tab_plots:
+                        if t4_operation == "✖️ Convolution":
+                            plot_signal(ind1, samp1, "Input Signal 1: h[n]")
+                            plot_signal(ind2, samp2, "Input Signal 2: x[n]",
+                                        stem_color="rgba(255, 127, 14, 0.7)", marker_color="#ff7f0e")
+                        else:
+                            plot_signal(ind1, samp1, "Input Signal: x[n]")
+                        plot_signal(res_ind, res_samp, out_title,
+                                    stem_color="rgba(44, 160, 44, 0.7)", marker_color="#2ca02c")
+
+                    with tab_data:
+                        st.markdown("#### **Resulting Signal Samples**")
+                        df_out = pd.DataFrame({
+                            "Time Index [n]": res_ind,
+                            "Output Amplitude y[n]": res_samp
+                        })
+                        st.dataframe(df_out, use_container_width=True, height=350)
+
+                    st.divider()
+                    file_content = generate_output_file(res_ind, res_samp)
+                    op_name = t4_operation.split(' ', 1)[1].replace(' ', '_')
+
+                    dl_col1, dl_col2 = st.columns([8, 2])
+                    with dl_col2:
+                        st.download_button(
+                            label=f"📥 Download {op_name} Result (.txt)",
+                            data=file_content,
+                            file_name=f"{op_name}_result.txt",
+                            mime="text/plain",
+                            use_container_width=True
+                        )
